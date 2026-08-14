@@ -11,7 +11,7 @@ AIGC:
 
 
 
-# AI Chat Platform
+ AI Chat Platform
 
 企业级 AI 对话平台，基于 React + FastAPI + PostgreSQL。
 
@@ -53,21 +53,21 @@ ai-chat-platform/
 └── README.md
 ```
 
-## 快速启动
+ 快速启动
 
-### 前置条件
+ 前置条件
 - Python 3.11+
 - Node.js 18+
 - PostgreSQL 16+
 - Redis (可选，缓存)
 
-### 1. 创建数据库
+ 1. 创建数据库
 
 ```sql
 CREATE DATABASE ai_chat;
 ```
 
-### 2. 启动后端
+ 2. 启动后端
 
 ```bash
 cd backend
@@ -115,5 +115,4 @@ UPDATE users SET role = 'super_admin' WHERE username = 'admin';
 - [ ] API 后台管理
 - [ ] Prompt 预设模板
 - [ ] 数据分析图表
-*（内容由AI生成，仅供参考）*
-*（内容由AI生成，仅供参考）*
+
