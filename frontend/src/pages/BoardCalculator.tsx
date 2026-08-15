@@ -546,7 +546,7 @@ export default function BoardCalculator() {
               </div>
               <div className="relative mb-4">
                 <button onClick={() => setPickerOpen(!pickerOpen)} className={`${inputCls} flex items-center justify-between text-left`}>
-                  {selMat ? <span className="text-sm truncate flex items-center min-w-0"><span className="truncate">{selMat.name} · {selMat.length} × {selMat.width} cm · {t('calc.thickness_short')} {selMat.thickness} mm</span><span className="ml-2 text-xs text-apple-text-secondary shrink-0">{selMat.color}</span></span> : !materialsLoaded ? <span className="text-apple-text-secondary">{t('calc.loading_boards')}</span> : <span className="text-apple-text-secondary">{t('calc.select_board')}</span>}
+                  {selMat ? <span className="text-sm flex items-start min-w-0 flex-1"><span className="min-w-0 break-words leading-snug">{selMat.name} · {selMat.length} × {selMat.width} cm · {t('calc.thickness_short')} {selMat.thickness} mm</span><span className="ml-2 text-xs text-apple-text-secondary shrink-0">{selMat.color}</span></span> : !materialsLoaded ? <span className="text-apple-text-secondary">{t('calc.loading_boards')}</span> : <span className="text-apple-text-secondary">{t('calc.select_board')}</span>}
                   <ChevronDown className="w-4 h-4 text-apple-text-secondary shrink-0" />
                 </button>
                 {pickerOpen && (
@@ -555,7 +555,7 @@ export default function BoardCalculator() {
                       : filteredMats.map(m => (
                         <button key={m.id} onClick={() => { setSelMatId(m.id); setPickerOpen(false); setMatSearch(''); setPlatePrice(String(m.price)); }}
                           className={`w-full flex items-center justify-between rounded-xl px-3 py-2.5 text-left text-sm transition ${m.id === selMatId ? 'bg-apple-blue/20 text-white' : 'hover:bg-white/5'}`}>
-                          <span className="truncate">{m.name} · {m.length} × {m.width} cm · {t('calc.thickness_short')} {m.thickness} mm</span>
+                          <span className="min-w-0 flex-1 break-words leading-snug">{m.name} · {m.length} × {m.width} cm · {t('calc.thickness_short')} {m.thickness} mm</span>
                           <span className="rounded-md px-2 py-0.5 text-xs bg-apple-blue/10 text-apple-text-secondary shrink-0 ml-2">{m.color}</span>
                         </button>
                       ))}
@@ -939,6 +939,7 @@ const costingNum = (s: string): number => {
 };
 
 function CostingTab({ materials, materialsLoaded }: { materials: Material[]; materialsLoaded: boolean }) {
+  const { t } = useI18n();
   const inputCls = 'w-full bg-apple-secondary border border-apple-border rounded-apple px-3.5 py-2.5 text-sm text-apple-text placeholder-apple-text-secondary outline-none focus:border-apple-blue focus:ring-2 focus:ring-apple-blue/20 transition';
   const glassCard = 'bg-apple-card/80 backdrop-blur-apple border border-apple-border/50 rounded-[20px] p-6';
   const statCard = 'bg-apple-secondary/60 border border-apple-border/30 rounded-[18px] p-5';
@@ -1028,24 +1029,24 @@ function CostingTab({ materials, materialsLoaded }: { materials: Material[]; mat
     <div className="max-w-6xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
         <section className={glassCard}>
-          <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><Sliders className="w-4 h-4 text-apple-blue" />参数设置</h2>
+          <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><Sliders className="w-4 h-4 text-apple-blue" />{t('calc.params')}</h2>
           <div className="space-y-4">
-            <label className="text-sm block">产品数量
+            <label className="text-sm block">{t('calc.costing_product_qty')}
               <input type="number" min="0" step="1" className={inputCls} value={productQty} onChange={e => setProductQty(e.target.value)} />
             </label>
-            <label className="text-sm block">切割损耗（cm）
+            <label className="text-sm block">{t('calc.costing_loss')}
               <input type="number" min="0" step="0.1" className={inputCls} value={loss} onChange={e => setLoss(e.target.value)} />
             </label>
-            <label className="text-sm block">密度系数
+            <label className="text-sm block">{t('calc.costing_density')}
               <input type="number" min="0" step="0.1" className={inputCls} value={density} onChange={e => setDensity(e.target.value)} />
             </label>
-            <label className="text-sm block">报价系数
+            <label className="text-sm block">{t('calc.costing_quote_coef')}
               <input type="number" min="0" step="0.1" className={inputCls} value={quoteCoef} onChange={e => setQuoteCoef(e.target.value)} />
             </label>
-            <label className="text-sm block">配件价（元）
+            <label className="text-sm block">{t('calc.costing_accessory_price')}
               <input type="number" min="0" step="0.01" className={inputCls} value={accessoryPrice} onChange={e => setAccessoryPrice(e.target.value)} />
             </label>
-            <label className="text-sm block">配件重量（kg）
+            <label className="text-sm block">{t('calc.costing_accessory_weight')}
               <input type="number" min="0" step="0.01" className={inputCls} value={accessoryWeight} onChange={e => setAccessoryWeight(e.target.value)} />
             </label>
           </div>
@@ -1058,33 +1059,33 @@ function CostingTab({ materials, materialsLoaded }: { materials: Material[]; mat
             return (
               <div key={item.id} className={glassCard}>
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-sm font-semibold text-apple-text-secondary">板材条目 {idx + 1}</h2>
-                  <button onClick={() => removeItem(item.id)} className="text-apple-text-secondary hover:text-red-400 p-1.5 rounded-lg hover:bg-red-400/10 transition" title="删除该条目"><Trash2 className="w-4 h-4" /></button>
+                  <h2 className="text-sm font-semibold text-apple-text-secondary">{t('calc.costing_item_n', { n: idx + 1 })}</h2>
+                  <button onClick={() => removeItem(item.id)} className="text-apple-text-secondary hover:text-red-400 p-1.5 rounded-lg hover:bg-red-400/10 transition" title={t('calc.costing_remove_item')}><Trash2 className="w-4 h-4" /></button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <label className="text-sm block">选择板材
+                  <label className="text-sm block">{t('calc.costing_select_board')}
                     <select className={inputCls} value={item.materialId} onChange={e => updateItem(item.id, { materialId: e.target.value })}>
-                      {options.map(m => <option key={m.id} value={m.id}>{`${m.name} · ${m.length} × ${m.width} cm · 厚 ${m.thickness} mm · ${m.color}`}</option>)}
+                      {options.map(m => <option key={m.id} value={m.id}>{`${m.name} · ${m.length} × ${m.width} cm · ${t('calc.thickness_short')} ${m.thickness} mm · ${m.color}`}</option>)}
                     </select>
                   </label>
-                  <label className="text-sm block">产品长（mm/cm/m/in）
-                    <input type="text" inputMode="decimal" className={inputCls} value={item.prodLength} onChange={e => updateItem(item.id, { prodLength: e.target.value })} placeholder="例：30cm / 300mm" />
+                  <label className="text-sm block">{t('calc.costing_prod_length')}
+                    <input type="text" inputMode="decimal" className={inputCls} value={item.prodLength} onChange={e => updateItem(item.id, { prodLength: e.target.value })} placeholder={t('calc.costing_prod_length_ph')} />
                   </label>
-                  <label className="text-sm block">产品宽（mm/cm/m/in）
-                    <input type="text" inputMode="decimal" className={inputCls} value={item.prodWidth} onChange={e => updateItem(item.id, { prodWidth: e.target.value })} placeholder="例：20cm / 200mm" />
+                  <label className="text-sm block">{t('calc.costing_prod_width')}
+                    <input type="text" inputMode="decimal" className={inputCls} value={item.prodWidth} onChange={e => updateItem(item.id, { prodWidth: e.target.value })} placeholder={t('calc.costing_prod_width_ph')} />
                   </label>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                  <label className="text-sm block">板数
+                  <label className="text-sm block">{t('calc.costing_board_count')}
                     <input type="number" min="0" step="1" className={inputCls} value={item.boardCount} onChange={e => updateItem(item.id, { boardCount: e.target.value })} />
                   </label>
                   {mat && (
                     <div className="md:col-span-2 rounded-[14px] bg-apple-secondary/50 border border-apple-border/20 px-4 py-3 text-xs text-apple-text-secondary flex items-center gap-4 flex-wrap">
                       <span className="text-apple-text font-medium">{mat.name}</span>
                       <span>{mat.length} × {mat.width} cm</span>
-                      <span>厚 {mat.thickness} mm</span>
+                      <span>{t('calc.thickness_short')} {mat.thickness} mm</span>
                       <span className="text-apple-blue">{mat.color}</span>
                       <span className="text-green-400">¥{mat.price}</span>
                     </div>
@@ -1094,62 +1095,62 @@ function CostingTab({ materials, materialsLoaded }: { materials: Material[]; mat
                 {row && row.valid && (
                   <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                     <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
-                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">长向件数</p>
+                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_len_count')}</p>
                       <p className="text-base font-bold text-apple-blue">{row.lengthCount}</p>
                     </div>
                     <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
-                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">宽向件数</p>
+                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_wid_count')}</p>
                       <p className="text-base font-bold text-apple-blue">{row.widthCount}</p>
                     </div>
                     <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
-                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">每板可开数</p>
+                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_per_board')}</p>
                       <p className="text-base font-bold text-white">{row.perBoard}</p>
                     </div>
                     <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
-                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">开料数量</p>
+                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_cut_qty')}</p>
                       <p className="text-base font-bold text-white">{costingFmt(row.cutQty, 3)}</p>
                     </div>
                     <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
-                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">材料成本（元）</p>
+                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_material_cost')}</p>
                       <p className="text-base font-bold text-green-400">{costingFmt(row.cost)}</p>
                     </div>
                     <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
-                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">单板重量（kg）</p>
+                      <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_board_weight')}</p>
                       <p className="text-base font-bold text-purple-400">{costingFmt(row.weight, 3)}</p>
                     </div>
                   </div>
                 )}
 
                 {row && row.valid && !row.cuttable && (
-                  <p className="mt-3 text-xs text-orange-400">该板材尺寸无法开出任何产品，请检查产品尺寸或损耗。</p>
+                  <p className="mt-3 text-xs text-orange-400">{t('calc.costing_no_cut')}</p>
                 )}
               </div>
             );
           })}
 
-          <button onClick={addItem} className="flex items-center justify-center gap-2 w-full border border-dashed border-apple-border/40 hover:border-apple-blue/50 text-apple-text-secondary hover:text-apple-blue rounded-[16px] py-3 text-sm transition"><Plus className="w-4 h-4" />添加板材条目</button>
+          <button onClick={addItem} className="flex items-center justify-center gap-2 w-full border border-dashed border-apple-border/40 hover:border-apple-blue/50 text-apple-text-secondary hover:text-apple-blue rounded-[16px] py-3 text-sm transition"><Plus className="w-4 h-4" />{t('calc.costing_add_item')}</button>
 
           <div className={glassCard}>
-            <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><BarChart3 className="w-4 h-4 text-apple-blue" />汇总</h2>
+            <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><BarChart3 className="w-4 h-4 text-apple-blue" />{t('calc.costing_summary')}</h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
               <div className={statCard}>
-                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">总开料数量</p>
+                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.costing_total_cut_qty')}</p>
                 <p className="text-2xl font-bold text-apple-blue">{costingFmt(summary.totalCutQty, 3)}</p>
               </div>
               <div className={statCard}>
-                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">总材料成本</p>
+                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.costing_total_cost')}</p>
                 <p className="text-2xl font-bold text-white">¥{costingFmt(summary.totalCost)}</p>
               </div>
               <div className={statCard}>
-                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">产品报价</p>
+                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.costing_quote')}</p>
                 <p className="text-2xl font-bold text-green-400">¥{costingFmt(summary.quote)}</p>
               </div>
               <div className={statCard}>
-                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">含配件价</p>
+                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.costing_with_accessory')}</p>
                 <p className="text-2xl font-bold text-orange-400">¥{costingFmt(summary.withAccessory)}</p>
               </div>
               <div className={statCard}>
-                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">总重量（kg）</p>
+                <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.costing_total_weight')}</p>
                 <p className="text-2xl font-bold text-purple-400">{costingFmt(summary.totalWeight, 3)}</p>
               </div>
             </div>
@@ -1169,6 +1170,7 @@ const packingNum = (s: string): number => {
 };
 
 function PackingTab() {
+  const { t } = useI18n();
   const inputCls = 'w-full bg-apple-secondary border border-apple-border rounded-apple px-3.5 py-2.5 text-sm text-apple-text placeholder-apple-text-secondary outline-none focus:border-apple-blue focus:ring-2 focus:ring-apple-blue/20 transition';
   const glassCard = 'bg-apple-card/80 backdrop-blur-apple border border-apple-border/50 rounded-[20px] p-6';
   const statCard = 'bg-apple-secondary/60 border border-apple-border/30 rounded-[18px] p-5';
@@ -1215,89 +1217,89 @@ function PackingTab() {
   return (
     <div className="max-w-6xl mx-auto space-y-6">
       <section className={glassCard}>
-        <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><Sliders className="w-4 h-4 text-apple-blue" />参数设置</h2>
+        <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><Sliders className="w-4 h-4 text-apple-blue" />{t('calc.params')}</h2>
         <div className="flex flex-wrap gap-4">
           <div className="w-44">
-            <label className="text-sm block mb-1">产品长（cm）</label>
-            <input type="number" min="0" step="0.1" className={inputCls} value={prodLength} onChange={e => setProdLength(e.target.value)} placeholder="例：30" />
+            <label className="text-sm block mb-1">{t('calc.packing_prod_length')}</label>
+            <input type="number" min="0" step="0.1" className={inputCls} value={prodLength} onChange={e => setProdLength(e.target.value)} placeholder={t('calc.packing_len_ph')} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">产品宽（cm）</label>
-            <input type="number" min="0" step="0.1" className={inputCls} value={prodWidth} onChange={e => setProdWidth(e.target.value)} placeholder="例：20" />
+            <label className="text-sm block mb-1">{t('calc.packing_prod_width')}</label>
+            <input type="number" min="0" step="0.1" className={inputCls} value={prodWidth} onChange={e => setProdWidth(e.target.value)} placeholder={t('calc.packing_wid_ph')} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">产品高（cm）</label>
-            <input type="number" min="0" step="0.1" className={inputCls} value={prodHeight} onChange={e => setProdHeight(e.target.value)} placeholder="例：10" />
+            <label className="text-sm block mb-1">{t('calc.packing_prod_height')}</label>
+            <input type="number" min="0" step="0.1" className={inputCls} value={prodHeight} onChange={e => setProdHeight(e.target.value)} placeholder={t('calc.packing_hei_ph')} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">单品重量（g）</label>
-            <input type="number" min="0" step="0.1" className={inputCls} value={unitWeight} onChange={e => setUnitWeight(e.target.value)} placeholder="例：500" />
+            <label className="text-sm block mb-1">{t('calc.packing_unit_weight')}</label>
+            <input type="number" min="0" step="0.1" className={inputCls} value={unitWeight} onChange={e => setUnitWeight(e.target.value)} placeholder={t('calc.packing_weight_ph')} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">长向装箱数</label>
+            <label className="text-sm block mb-1">{t('calc.packing_len_count')}</label>
             <input type="number" min="0" step="1" className={inputCls} value={boxLength} onChange={e => setBoxLength(e.target.value)} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">宽向装箱数</label>
+            <label className="text-sm block mb-1">{t('calc.packing_wid_count')}</label>
             <input type="number" min="0" step="1" className={inputCls} value={boxWidth} onChange={e => setBoxWidth(e.target.value)} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">高向装箱数</label>
+            <label className="text-sm block mb-1">{t('calc.packing_hei_count')}</label>
             <input type="number" min="0" step="1" className={inputCls} value={boxHeight} onChange={e => setBoxHeight(e.target.value)} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">飞机盒厚度（cm）</label>
+            <label className="text-sm block mb-1">{t('calc.packing_carton_thickness')}</label>
             <input type="number" min="0" step="0.1" className={inputCls} value={cartonThickness} onChange={e => setCartonThickness(e.target.value)} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">外箱余量（cm）</label>
+            <label className="text-sm block mb-1">{t('calc.packing_outer_allowance')}</label>
             <input type="number" min="0" step="0.1" className={inputCls} value={outerAllowance} onChange={e => setOuterAllowance(e.target.value)} />
           </div>
           <div className="w-44">
-            <label className="text-sm block mb-1">箱体自重（kg）</label>
+            <label className="text-sm block mb-1">{t('calc.packing_carton_weight')}</label>
             <input type="number" min="0" step="0.1" className={inputCls} value={cartonWeight} onChange={e => setCartonWeight(e.target.value)} />
           </div>
         </div>
       </section>
 
       <section className={glassCard}>
-        <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><BarChart3 className="w-4 h-4 text-apple-blue" />计算结果</h2>
+        <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><BarChart3 className="w-4 h-4 text-apple-blue" />{t('calc.packing_result')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <div className={statCard}>
-            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">内盒长（cm）</p>
+            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.packing_inner_l')}</p>
             <p className="text-2xl font-bold text-apple-blue">{packingFmt(result.innerL)}</p>
           </div>
           <div className={statCard}>
-            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">内盒宽（cm）</p>
+            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.packing_inner_w')}</p>
             <p className="text-2xl font-bold text-apple-blue">{packingFmt(result.innerW)}</p>
           </div>
           <div className={statCard}>
-            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">内盒高（cm）</p>
+            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.packing_inner_h')}</p>
             <p className="text-2xl font-bold text-apple-blue">{packingFmt(result.innerH)}</p>
           </div>
           <div className={statCard}>
-            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">外箱长（cm）</p>
+            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.packing_outer_l')}</p>
             <p className="text-2xl font-bold text-white">{packingFmt(result.outerL)}</p>
           </div>
           <div className={statCard}>
-            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">外箱宽（cm）</p>
+            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.packing_outer_w')}</p>
             <p className="text-2xl font-bold text-white">{packingFmt(result.outerW)}</p>
           </div>
           <div className={statCard}>
-            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">外箱高（cm）</p>
+            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.packing_outer_h')}</p>
             <p className="text-2xl font-bold text-white">{packingFmt(result.outerH)}</p>
           </div>
           <div className={statCard}>
-            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">装箱数量（pcs）</p>
+            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.packing_qty')}</p>
             <p className="text-2xl font-bold text-green-400">{packingFmt(result.qty, 0)}</p>
           </div>
           <div className={statCard}>
-            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">箱体重量（kg）</p>
+            <p className="text-[11px] text-apple-text-secondary font-semibold uppercase tracking-wider mb-1">{t('calc.packing_weight')}</p>
             <p className="text-2xl font-bold text-purple-400">{packingFmt(result.weight, 3)}</p>
           </div>
         </div>
         {!result.valid && (
-          <p className="mt-4 text-xs text-apple-text-secondary">请完整填写产品长/宽/高、单品重量及每向装箱数，以查看计算结果。</p>
+          <p className="mt-4 text-xs text-apple-text-secondary">{t('calc.packing_hint')}</p>
         )}
       </section>
     </div>
