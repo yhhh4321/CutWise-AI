@@ -2,6 +2,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import { Copy, RefreshCw, Pencil } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 interface Message {
   id: number;
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export default function MessageBubble({ msg, onCopy, onEdit, onRegenerate, isLastAssistant, streaming }: Props) {
+  const { t } = useI18n();
   const isUser = msg.role === 'user';
 
   return (
@@ -36,7 +38,7 @@ export default function MessageBubble({ msg, onCopy, onEdit, onRegenerate, isLas
             <button
               onClick={() => onEdit?.(msg.id, msg.content)}
               className="absolute -bottom-1 -right-1 opacity-0 group-hover:opacity-100 bg-apple-card border border-apple-border rounded-full p-1.5 text-apple-text-secondary hover:text-white transition-all shadow-md"
-              title="编辑重发"
+              title={t('hint.edit_resend')}
             >
               <Pencil className="w-3 h-3" />
             </button>
@@ -81,7 +83,7 @@ export default function MessageBubble({ msg, onCopy, onEdit, onRegenerate, isLas
                   onClick={() => onCopy(msg.content)}
                   className="text-[11px] text-apple-text-secondary hover:text-apple-text transition-colors flex items-center gap-1"
                 >
-                  <Copy className="w-3 h-3" /> 复制
+                  <Copy className="w-3 h-3" /> {t('btn.copy')}
                 </button>
               )}
               {isLastAssistant && !streaming && onRegenerate && (
@@ -89,7 +91,7 @@ export default function MessageBubble({ msg, onCopy, onEdit, onRegenerate, isLas
                   onClick={() => onRegenerate(msg.id)}
                   className="text-[11px] text-apple-text-secondary hover:text-apple-blue transition-colors flex items-center gap-1 ml-2"
                 >
-                  <RefreshCw className="w-3 h-3" /> 重新生成
+                  <RefreshCw className="w-3 h-3" /> {t('btn.regenerate')}
                 </button>
               )}
             </div>

@@ -1,3 +1,5 @@
+import secrets
+
 from pydantic_settings import BaseSettings
 from functools import lru_cache
 
@@ -5,7 +7,8 @@ from functools import lru_cache
 class Settings(BaseSettings):
     APP_NAME: str = "AI Chat Platform"
     DEBUG: bool = True
-    SECRET_KEY: str = "change-this-in-production-use-random-64-char-string"
+    # 默认随机生成强密钥；生产环境必须通过 .env 显式设置持久化 SECRET_KEY
+    SECRET_KEY: str = secrets.token_urlsafe(64)
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 

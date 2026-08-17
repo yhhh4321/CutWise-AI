@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react';
 import { useStore } from '../store';
 import { MessageSquare, Plus, Trash2, Edit3, Check, X } from 'lucide-react';
+import { useI18n } from '../i18n';
 
 export default function Sidebar() {
+  const { t } = useI18n();
   const { sessions, currentSessionId, selectSession, newSession, deleteSession, renameSession } = useStore();
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState('');
@@ -24,13 +26,13 @@ export default function Sidebar() {
       <div className="p-4">
         <div className="flex items-center gap-2.5 mb-3 px-1">
           <div className="w-5 h-5 rounded-md bg-gradient-to-br from-apple-blue to-purple-500 flex items-center justify-center text-[8px] font-bold text-white">AI</div>
-          <span className="text-xs font-semibold text-white">创世</span>
+          <span className="text-xs font-semibold text-white">{t('app.name')}</span>
         </div>
         <button
           onClick={newSession}
           className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-apple-blue to-purple-500 hover:opacity-90 text-white text-sm font-medium py-2.5 rounded-apple transition-all shadow-md shadow-apple-blue/20"
         >
-          <Plus className="w-4 h-4" /> 新对话
+          <Plus className="w-4 h-4" /> {t('title.new_chat')}
         </button>
       </div>
       <div className="flex-1 overflow-y-auto px-3 pb-3">
@@ -79,7 +81,7 @@ export default function Sidebar() {
           </div>
         ))}
         {sessions.length === 0 && (
-          <p className="text-xs text-apple-text-secondary text-center mt-8">暂无对话记录</p>
+          <p className="text-xs text-apple-text-secondary text-center mt-8">{t('label.no_sessions_detail')}</p>
         )}
       </div>
     </aside>

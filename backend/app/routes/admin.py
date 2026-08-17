@@ -6,6 +6,7 @@ from app.database import get_db
 from app.models import User, AuditLog, Message, Session, UserQuota, UserRole, ApiConfig, ChatTemplate
 from app.schemas import AuditLogOut, PaginatedResponse, DailyStats, UserQuotaOut, UserQuotaUpdate, UserOut, UserCreateByAdmin, UserPasswordChange, ProviderCreate, ProviderUpdate, ProviderOut, TemplateCreate, TemplateUpdate, TemplateOut
 from app.auth import get_current_user, require_admin, require_super_admin, hash_password
+from app.crypto import encrypt_api_key
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -109,19 +110,23 @@ async def delete_user(
     # 手动清理外键关联（无 cascade 的表 + SQLite 不强制 FK）
     from sqlalchemy import delete as sa_delete
     from app.models import Message, BoardMaterial, RodTube
-    # 1. 删除该用户所有会话的消息
-    session_ids_subq = select(Session.id).where(Session.user_id == user_id).subquery()
-    await db.execute(sa_delete(Message).where(Message.session_id.in_(session_ids_subq)))
-    # 2. 删除该用户所有会话
-    await db.execute(sa_delete(Session).where(Session.user_id == user_id))
-    # 3. 删除审计日志、配额、板材、圆棒
-    await db.execute(sa_delete(AuditLog).where(AuditLog.user_id == user_id))
-    await db.execute(sa_delete(UserQuota).where(UserQuota.user_id == user_id))
-    await db.execute(sa_delete(BoardMaterial).where(BoardMaterial.user_id == user_id))
-    await db.execute(sa_delete(RodTube).where(RodTube.user_id == user_id))
-    # 4. 删除用户
-    await db.delete(target)
-    await db.commit()
+    try:
+        # 1. 删除该用户所有会话的消息
+        session_ids_subq = select(Session.id).where(Session.user_id == user_id).subquery()
+        await db.execute(sa_delete(Message).where(Message.session_id.in_(session_ids_subq)))
+        # 2. 删除该用户所有会话
+        await db.execute(sa_delete(Session).where(Session.user_id == user_id))
+        # 3. 删除审计日志、配额、板材、圆棒
+        await db.execute(sa_delete(AuditLog).where(AuditLog.user_id == user_id))
+        await db.execute(sa_delete(UserQuota).where(UserQuota.user_id == user_id))
+        await db.execute(sa_delete(BoardMaterial).where(BoardMaterial.user_id == user_id))
+        await db.execute(sa_delete(RodTube).where(RodTube.user_id == user_id))
+        # 4. 删除用户
+        await db.delete(target)
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise
     return {"ok": True, "message": f"用户 {username} 已删除"}
 
 
@@ -340,7 +345,7 @@ async def create_provider(
         name=data.name,
         api_type="openai",
         base_url=data.base_url,
-        api_key_encrypted=data.api_key,
+        api_key_encrypted=encrypt_api_key(data.api_key),
         models=data.models,
         is_active=True,
     )
@@ -363,7 +368,7 @@ async def update_provider(
     if data.base_url is not None:
         provider.base_url = data.base_url
     if data.api_key is not None:
-        provider.api_key_encrypted = data.api_key
+        provider.api_key_encrypted = encrypt_api_key(data.api_key)
     if data.models is not None:
         provider.models = data.models
     if data.is_active is not None:

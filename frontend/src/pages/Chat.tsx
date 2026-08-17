@@ -123,7 +123,7 @@ export default function Chat() {
           {quota && (
             <div className="flex items-center gap-2">
               <span className="text-[11px] text-apple-text-secondary whitespace-nowrap">
-                今日 {quota.dailyMessagesUsed}{quota.dailyMessagesLimit > 0 ? `/${quota.dailyMessagesLimit}` : ''} 条 · {quota.dailyTokensUsed} tokens
+                {t('chat.today')} {quota.dailyMessagesUsed}{quota.dailyMessagesLimit > 0 ? `/${quota.dailyMessagesLimit}` : ''} {t('chat.msg_unit')} · {quota.dailyTokensUsed} tokens
               </span>
               {quota.dailyMessagesLimit > 0 && (
                 <div className="hidden md:flex items-center gap-1">
@@ -144,9 +144,9 @@ export default function Chat() {
 
         <div className="flex items-center gap-2 md:gap-3">
           {showQuotaWarning && (
-            <span className="text-[11px] text-yellow-400 flex items-center gap-1" title="用量已超过 80%">
+            <span className="text-[11px] text-yellow-400 flex items-center gap-1" title={t('chat.quota_warning_hint')}>
               <AlertTriangle className="w-3 h-3" />
-              <span className="hidden md:inline">用量告警</span>
+              <span className="hidden md:inline">{t('chat.quota_warning')}</span>
             </span>
           )}
           {streaming ? (
@@ -154,10 +154,10 @@ export default function Chat() {
               onClick={stopGeneration}
               className="flex items-center gap-1 md:gap-1.5 text-[11px] md:text-xs text-red-400 hover:text-red-300 bg-red-500/10 border border-red-500/20 px-2 md:px-3 py-1 md:py-1.5 rounded-apple transition-colors"
             >
-              <Square className="w-3 h-3" /> <span className="hidden md:inline">停止</span>
+              <Square className="w-3 h-3" /> <span className="hidden md:inline">{t('chat.stop')}</span>
             </button>
           ) : (
-            <span className="text-[11px] text-apple-text-secondary">就绪</span>
+            <span className="text-[11px] text-apple-text-secondary">{t('chat.ready')}</span>
           )}
         </div>
       </div>
@@ -175,7 +175,7 @@ export default function Chat() {
                 </div>
               </div>
               <p className="text-apple-text text-base font-medium mb-1">{t('title.new_chat')}</p>
-              <p className="text-apple-text-secondary text-xs">我能帮你写作、分析、编程、解答问题</p>
+              <p className="text-apple-text-secondary text-xs">{t('chat.empty_hint')}</p>
             </div>
           </div>
         ) : (
@@ -214,8 +214,8 @@ export default function Chat() {
         <div className="max-w-4xl mx-auto w-full">
         {editingId && (
           <div className="text-[11px] text-apple-text-secondary mb-2 flex items-center gap-2">
-            <span className="text-apple-blue">编辑模式</span>
-            <button onClick={() => { setEditingId(null); setInput(''); }} className="hover:text-apple-text transition-colors">取消</button>
+            <span className="text-apple-blue">{t('chat.edit_mode')}</span>
+            <button onClick={() => { setEditingId(null); setInput(''); }} className="hover:text-apple-text transition-colors">{t('btn.cancel')}</button>
           </div>
         )}
         <div className="flex items-end gap-2 md:gap-3 bg-apple-card border border-apple-border rounded-2xl px-3 md:px-4 py-2.5 md:py-3 focus-within:border-apple-blue/60 focus-within:shadow-lg focus-within:shadow-apple-blue/10 transition-all">

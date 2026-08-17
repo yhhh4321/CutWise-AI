@@ -1,7 +1,9 @@
 import { MessageSquare, Scissors } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useI18n } from '../i18n';
 
 export default function NavBar() {
+  const { t } = useI18n();
   const navigate = useNavigate();
   const location = useLocation();
   const isCalculator = location.pathname === '/calculator';
@@ -15,7 +17,7 @@ export default function NavBar() {
         }`}
       >
         <MessageSquare className="w-5 h-5" />
-        <span className="text-[10px] font-medium leading-none">对话</span>
+        <span className="text-[10px] font-medium leading-none">{t('nav.chat')}</span>
       </div>
       <div
         onClick={() => navigate('/calculator')}
@@ -24,7 +26,7 @@ export default function NavBar() {
         }`}
       >
         <Scissors className="w-5 h-5" />
-        <span className="text-[10px] font-medium leading-none">切割</span>
+        <span className="text-[10px] font-medium leading-none">{t('nav.cut')}</span>
       </div>
     </nav>
   );

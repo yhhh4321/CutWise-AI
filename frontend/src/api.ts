@@ -126,6 +126,12 @@ export function streamChat(
     signal: controller.signal,
   })
     .then(async (res) => {
+      if (res.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+        throw new Error('未登录');
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
         throw new Error(err.detail || '流式请求失败');

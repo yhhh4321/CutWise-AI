@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { api } from '../api';
+import { useI18n } from '../i18n';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Legend } from 'recharts';
 import { RefreshCw, Zap, DollarSign, Calendar, MessageSquare } from 'lucide-react';
 
@@ -17,6 +18,7 @@ function formatCost(n: number) {
 }
 
 export default function Dashboard() {
+  const { t } = useI18n();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -48,7 +50,7 @@ export default function Dashboard() {
     return (
       <div className="text-center py-12">
         <p className="text-red-400 mb-3">{error}</p>
-        <button onClick={load} className="text-apple-blue text-sm hover:underline">重试</button>
+        <button onClick={load} className="text-apple-blue text-sm hover:underline">{t('btn.retry')}</button>
       </div>
     );
   }
@@ -59,7 +61,7 @@ export default function Dashboard() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h2 className="text-lg font-semibold text-[var(--text-primary)]">用量仪表盘</h2>
+        <h2 className="text-lg font-semibold text-[var(--text-primary)]">{t('admin.tab_dashboard')}</h2>
         <div className="flex items-center gap-2">
           {[7, 15, 30, 60].map((d) => (
             <button
@@ -71,10 +73,10 @@ export default function Dashboard() {
                   : 'bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:text-[var(--text-primary)]'
               }`}
             >
-              {d}天
+              {t('admin.days_n', { n: d })}
             </button>
           ))}
-          <button onClick={load} className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)] transition-colors" title="刷新">
+          <button onClick={load} className="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--hover-bg)] transition-colors" title={t('admin.refresh')}>
             <RefreshCw className="w-4 h-4" />
           </button>
         </div>
@@ -82,18 +84,18 @@ export default function Dashboard() {
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard icon={<MessageSquare className="w-4 h-4" />} label="总消息数" value={data.total_messages.toLocaleString()} />
-        <KpiCard icon={<Zap className="w-4 h-4" />} label="总 Token" value={formatTokens(data.total_tokens)} />
-        <KpiCard icon={<DollarSign className="w-4 h-4" />} label="预估费用" value={formatCost(data.total_cost)} />
-        <KpiCard icon={<Calendar className="w-4 h-4" />} label="活跃天数" value={`${data.active_days} 天`} />
+        <KpiCard icon={<MessageSquare className="w-4 h-4" />} label={t('admin.stats_messages')} value={(data.total_messages ?? 0).toLocaleString()} />
+        <KpiCard icon={<Zap className="w-4 h-4" />} label={t('admin.stats_tokens')} value={formatTokens(data.total_tokens ?? 0)} />
+        <KpiCard icon={<DollarSign className="w-4 h-4" />} label={t('admin.stats_cost')} value={formatCost(data.total_cost ?? 0)} />
+        <KpiCard icon={<Calendar className="w-4 h-4" />} label={t('admin.stats_active_days')} value={t('admin.days_n', { n: data.active_days ?? 0 })} />
       </div>
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Daily Trend */}
-        <ChartCard title="每日趋势">
+        <ChartCard title={t('admin.chart_daily_trend')}>
           <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={data.daily}>
+            <BarChart data={data.daily ?? []}>
               <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.5} />
               <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} interval="preserveStartEnd" />
               <YAxis tick={{ fontSize: 11, fill: 'var(--text-secondary)' }} />
@@ -112,11 +114,11 @@ export default function Dashboard() {
         </ChartCard>
 
         {/* Model Distribution */}
-        <ChartCard title="模型用量分布">
+        <ChartCard title={t('admin.chart_model_distribution')}>
           <ResponsiveContainer width="100%" height={260}>
             <PieChart>
               <Pie
-                data={data.models}
+                data={data.models ?? []}
                 dataKey="tokens"
                 nameKey="model"
                 cx="50%"
@@ -125,7 +127,7 @@ export default function Dashboard() {
                 label={({ name, percent }: any) => `${String(name).split('/').pop()?.slice(0, 12)} ${((percent ?? 0) * 100).toFixed(0)}%`}
                 labelLine={{ stroke: 'var(--text-secondary)', strokeWidth: 1 }}
               >
-                {data.models.map((_: any, i: number) => (
+                {(data.models ?? []).map((_: any, i: number) => (
                   <Cell key={i} fill={COLORS[i % COLORS.length]} />
                 ))}
               </Pie>
@@ -144,26 +146,26 @@ export default function Dashboard() {
       </div>
 
       {/* Model Details Table */}
-      <ChartCard title="模型明细">
+      <ChartCard title={t('admin.chart_model_detail')}>
         <div className="overflow-x-auto">
           <table className="w-full text-sm min-w-[500px]">
             <thead>
               <tr className="border-b border-[var(--border-primary)]">
-                <th className="text-left py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">模型</th>
-                <th className="text-right py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">消息数</th>
-                <th className="text-right py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">Token</th>
-                <th className="text-right py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">用户数</th>
-                <th className="text-right py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">预估费用</th>
+                <th className="text-left py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">{t('admin.th_model')}</th>
+                <th className="text-right py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">{t('admin.th_messages')}</th>
+                <th className="text-right py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">{t('admin.th_tokens')}</th>
+                <th className="text-right py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">{t('admin.th_users')}</th>
+                <th className="text-right py-2.5 px-3 text-[var(--text-secondary)] font-medium text-xs">{t('admin.th_cost')}</th>
               </tr>
             </thead>
             <tbody>
-              {data.models.map((m: any) => (
+              {(data.models ?? []).map((m: any) => (
                 <tr key={m.model} className="border-b border-[var(--border-primary)]/50 hover:bg-[var(--hover-bg)] transition-colors">
                   <td className="py-2.5 px-3 text-[var(--text-primary)] font-mono text-xs">{m.model}</td>
-                  <td className="py-2.5 px-3 text-right text-[var(--text-secondary)]">{m.messages.toLocaleString()}</td>
-                  <td className="py-2.5 px-3 text-right text-[var(--text-primary)]">{formatTokens(m.tokens)}</td>
-                  <td className="py-2.5 px-3 text-right text-[var(--text-secondary)]">{m.users}</td>
-                  <td className="py-2.5 px-3 text-right text-apple-blue font-medium">{formatCost(m.cost)}</td>
+                  <td className="py-2.5 px-3 text-right text-[var(--text-secondary)]">{(m.messages ?? 0).toLocaleString()}</td>
+                  <td className="py-2.5 px-3 text-right text-[var(--text-primary)]">{formatTokens(m.tokens ?? 0)}</td>
+                  <td className="py-2.5 px-3 text-right text-[var(--text-secondary)]">{m.users ?? 0}</td>
+                  <td className="py-2.5 px-3 text-right text-apple-blue font-medium">{formatCost(m.cost ?? 0)}</td>
                 </tr>
               ))}
             </tbody>

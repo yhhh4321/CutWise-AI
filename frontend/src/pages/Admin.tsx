@@ -516,17 +516,20 @@ function ProvidersPanel() {
 
   const openCreate = () => { resetForm(); setShowForm(true); };
   const openEdit = (p: any) => {
-    setName(p.name); setBaseUrl(p.base_url); setApiKey(p.api_key_encrypted || '');
+    setName(p.name); setBaseUrl(p.base_url); setApiKey('');
     setModels((p.models || []).join(', ')); setEditId(p.id); setShowForm(true); setError('');
   };
 
   const handleSubmit = async () => {
-    if (!name.trim() || !baseUrl.trim() || !apiKey.trim()) { setError(t('admin.provider_required')); return; }
+    if (!name.trim() || !baseUrl.trim()) { setError(t('admin.provider_required')); return; }
+    if (!editId && !apiKey.trim()) { setError(t('admin.provider_required')); return; }
     const modelsArr = models.split(',').map(m => m.trim()).filter(Boolean);
     setError('');
     try {
       if (editId) {
-        await api.updateProvider(editId, { name: name.trim(), base_url: baseUrl.trim(), api_key: apiKey.trim(), models: modelsArr });
+        const payload: any = { name: name.trim(), base_url: baseUrl.trim(), models: modelsArr };
+        if (apiKey.trim()) payload.api_key = apiKey.trim();
+        await api.updateProvider(editId, payload);
       } else {
         await api.createProvider({ name: name.trim(), base_url: baseUrl.trim(), api_key: apiKey.trim(), models: modelsArr });
       }

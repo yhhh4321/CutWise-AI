@@ -185,10 +185,6 @@ export default function BoardCalculator() {
 
   const selRt = rtMaterials.find(r => r.id === selRtId) || rtMaterials[0];
 
-  useEffect(() => {
-    if (rodsLoaded) api.saveRodTubes(rtMaterials).catch(() => {});
-  }, [rtMaterials, rodsLoaded]);
-
   /* ---- Calculator inputs ---- */
   const [prodLength, setProdLength] = useState('');
   const [prodWidth, setProdWidth] = useState('');
@@ -503,30 +499,24 @@ export default function BoardCalculator() {
   return (
     <div className="h-full bg-apple-bg text-apple-text overflow-y-auto">
       <div className="max-w-6xl xl:max-w-7xl mx-auto px-5 py-8">
-        {/* Header */}
-        <header className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-[28px] font-bold tracking-tight bg-gradient-to-r from-apple-blue via-purple-400 to-apple-blue bg-clip-text text-transparent">{t('calc.title')}</h1>
-            <p className="text-xs text-apple-text-secondary mt-1">{t('calc.subtitle')}</p>
-          </div>
-          <button onClick={resetCalc} className={ghostBtn}><RefreshCw className="w-3.5 h-3.5 inline mr-1" />{t('calc.reset')}</button>
-        </header>
-
         {/* Tab bar */}
         <nav className="mb-8">
-          <div className="flex overflow-x-auto bg-apple-secondary/60 border border-apple-border/30 rounded-[14px] p-1 backdrop-blur mx-auto w-fit max-w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {([
-              ['calculator', Calculator, t('calc.tab_calculator')],
-              ['costing', BarChart3, t('calc.tab_costing')],
-              ['packing', Package, t('calc.tab_packing')],
-              ['materials', Database, t('calc.tab_materials')],
-              ['rodTubeCalc', Cog, t('calc.tab_rod_calc')],
-              ['rodTubeLibrary', Archive, t('calc.tab_rod_library')],
-            ] as const).map(([key, Icon, label]) => (
-              <button key={key} onClick={() => setTab(key)} className={tab === key ? segActive : segInactive}>
-                <Icon className="w-3.5 h-3.5 inline mr-1" />{label}
-              </button>
-            ))}
+          <div className="flex items-center justify-center gap-3">
+            <div className="flex overflow-x-auto bg-apple-secondary/60 border border-apple-border/30 rounded-[14px] p-1 backdrop-blur w-fit max-w-full" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {([
+                ['calculator', Calculator, t('calc.tab_calculator')],
+                ['costing', BarChart3, t('calc.tab_costing')],
+                ['packing', Package, t('calc.tab_packing')],
+                ['materials', Database, t('calc.tab_materials')],
+                ['rodTubeCalc', Cog, t('calc.tab_rod_calc')],
+                ['rodTubeLibrary', Archive, t('calc.tab_rod_library')],
+              ] as const).map(([key, Icon, label]) => (
+                <button key={key} onClick={() => setTab(key)} className={tab === key ? segActive : segInactive}>
+                  <Icon className="w-3.5 h-3.5 inline mr-1" />{label}
+                </button>
+              ))}
+            </div>
+            <button onClick={resetCalc} className={ghostBtn}><RefreshCw className="w-3.5 h-3.5 inline mr-1" />{t('calc.reset')}</button>
           </div>
         </nav>
 
@@ -680,7 +670,7 @@ export default function BoardCalculator() {
 
         {/* ============ MATERIAL LIBRARY TAB ============ */}
         {tab === 'materials' && (
-          <div className="max-w-4xl mx-auto">
+          <div className="mx-auto">
             <div className={glassCard}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                 <div>
@@ -711,7 +701,7 @@ export default function BoardCalculator() {
 
         {/* ============ ROD/TUBE CALCULATOR TAB ============ */}
         {tab === 'rodTubeCalc' && (
-          <div className="max-w-4xl mx-auto">
+          <div className="mx-auto">
             <div className={glassCard}>
               <h2 className="flex items-center gap-2 text-lg font-semibold mb-5"><Cog className="w-5 h-5 text-apple-blue" />{t('calc.rod_calc_title')}</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -777,7 +767,7 @@ export default function BoardCalculator() {
 
         {/* ============ ROD/TUBE LIBRARY TAB ============ */}
         {tab === 'rodTubeLibrary' && (
-          <div className="max-w-4xl mx-auto">
+          <div className="mx-auto">
             <div className={glassCard}>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
                 <div>
@@ -950,6 +940,7 @@ function CostingTab({ materials, materialsLoaded }: { materials: Material[]; mat
   const [quoteCoef, setQuoteCoef] = useState('2');
   const [accessoryPrice, setAccessoryPrice] = useState('0');
   const [accessoryWeight, setAccessoryWeight] = useState('0');
+  const [markup, setMarkup] = useState('0');
 
   const options = materials.length > 0 ? materials : DEFAULT_MATERIALS;
 
@@ -1017,16 +1008,17 @@ function CostingTab({ materials, materialsLoaded }: { materials: Material[]; mat
     const coef = costingNum(quoteCoef);
     const accPrice = costingNum(accessoryPrice);
     const accWeight = costingNum(accessoryWeight);
+    const markupNum = costingNum(markup);
     const totalCutQty = rows.reduce((s, r) => s + (r.cuttable ? r.cutQty : 0), 0) * (Number.isFinite(qty) ? qty : 0);
     const totalCost = rows.reduce((s, r) => s + r.cost, 0);
-    const quote = totalCost * (Number.isFinite(coef) ? coef : 0);
+    const quote = totalCost * (Number.isFinite(coef) ? coef : 0) + (Number.isFinite(markupNum) ? markupNum : 0);
     const withAccessory = quote + (Number.isFinite(accPrice) ? accPrice : 0);
     const totalWeight = rows.reduce((s, r) => s + r.weight, 0) + (Number.isFinite(accWeight) ? accWeight : 0);
     return { totalCutQty, totalCost, quote, withAccessory, totalWeight };
-  }, [rows, productQty, quoteCoef, accessoryPrice, accessoryWeight]);
+  }, [rows, productQty, quoteCoef, accessoryPrice, accessoryWeight, markup]);
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div className="mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
         <section className={glassCard}>
           <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><Sliders className="w-4 h-4 text-apple-blue" />{t('calc.params')}</h2>
@@ -1042,6 +1034,9 @@ function CostingTab({ materials, materialsLoaded }: { materials: Material[]; mat
             </label>
             <label className="text-sm block">{t('calc.costing_quote_coef')}
               <input type="number" min="0" step="0.1" className={inputCls} value={quoteCoef} onChange={e => setQuoteCoef(e.target.value)} />
+            </label>
+            <label className="text-sm block">{t('calc.costing_markup')}
+              <input type="number" min="0" step="0.01" className={inputCls} value={markup} onChange={e => setMarkup(e.target.value)} />
             </label>
             <label className="text-sm block">{t('calc.costing_accessory_price')}
               <input type="number" min="0" step="0.01" className={inputCls} value={accessoryPrice} onChange={e => setAccessoryPrice(e.target.value)} />
@@ -1077,12 +1072,12 @@ function CostingTab({ materials, materialsLoaded }: { materials: Material[]; mat
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2">
                   <label className="text-sm block">{t('calc.costing_board_count')}
                     <input type="number" min="0" step="1" className={inputCls} value={item.boardCount} onChange={e => updateItem(item.id, { boardCount: e.target.value })} />
                   </label>
                   {mat && (
-                    <div className="md:col-span-2 rounded-[14px] bg-apple-secondary/50 border border-apple-border/20 px-4 py-3 text-xs text-apple-text-secondary flex items-center gap-4 flex-wrap">
+                    <div className="md:col-span-2 rounded-[14px] bg-apple-secondary/50 border border-apple-border/20 px-4 py-0.5 text-xs leading-none text-apple-text-secondary flex items-center gap-4 flex-wrap">
                       <span className="text-apple-text font-medium">{mat.name}</span>
                       <span>{mat.length} × {mat.width} cm</span>
                       <span>{t('calc.thickness_short')} {mat.thickness} mm</span>
@@ -1093,28 +1088,28 @@ function CostingTab({ materials, materialsLoaded }: { materials: Material[]; mat
                 </div>
 
                 {row && row.valid && (
-                  <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
-                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
+                  <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
+                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-2">
                       <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_len_count')}</p>
                       <p className="text-base font-bold text-apple-blue">{row.lengthCount}</p>
                     </div>
-                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
+                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-2">
                       <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_wid_count')}</p>
                       <p className="text-base font-bold text-apple-blue">{row.widthCount}</p>
                     </div>
-                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
+                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-2">
                       <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_per_board')}</p>
                       <p className="text-base font-bold text-white">{row.perBoard}</p>
                     </div>
-                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
+                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-2">
                       <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_cut_qty')}</p>
                       <p className="text-base font-bold text-white">{costingFmt(row.cutQty, 3)}</p>
                     </div>
-                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
+                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-2">
                       <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_material_cost')}</p>
                       <p className="text-base font-bold text-green-400">{costingFmt(row.cost)}</p>
                     </div>
-                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-3">
+                    <div className="rounded-[14px] bg-apple-secondary/40 border border-apple-border/20 p-2">
                       <p className="text-[10px] text-apple-text-secondary uppercase tracking-wider mb-1">{t('calc.costing_board_weight')}</p>
                       <p className="text-base font-bold text-purple-400">{costingFmt(row.weight, 3)}</p>
                     </div>
@@ -1215,7 +1210,7 @@ function PackingTab() {
   }, [prodLength, prodWidth, prodHeight, unitWeight, boxLength, boxWidth, boxHeight, cartonThickness, outerAllowance, cartonWeight]);
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="mx-auto space-y-6">
       <section className={glassCard}>
         <h2 className="flex items-center gap-2 text-base font-semibold mb-5"><Sliders className="w-4 h-4 text-apple-blue" />{t('calc.params')}</h2>
         <div className="flex flex-wrap gap-4">

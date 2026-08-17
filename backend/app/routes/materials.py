@@ -37,20 +37,20 @@ async def get_boards(user: User = Depends(get_current_user), db: AsyncSession = 
 
 @router.put("/boards")
 async def save_boards(body: BoardMaterialBulk, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    await db.execute(delete(BoardMaterial).where(BoardMaterial.user_id == user.id))
-    for m in body.materials:
-        row = BoardMaterial(
-            user_id=user.id,
-            material_id=m.id,
-            name=m.name,
-            length=m.length,
-            width=m.width,
-            thickness=m.thickness,
-            color=m.color,
-            price=m.price,
-        )
-        db.add(row)
-    await db.commit()
+    async with db.begin():
+        await db.execute(delete(BoardMaterial).where(BoardMaterial.user_id == user.id))
+        for m in body.materials:
+            row = BoardMaterial(
+                user_id=user.id,
+                material_id=m.id,
+                name=m.name,
+                length=m.length,
+                width=m.width,
+                thickness=m.thickness,
+                color=m.color,
+                price=m.price,
+            )
+            db.add(row)
     return {"ok": True}
 
 
@@ -69,18 +69,18 @@ async def get_rods(user: User = Depends(get_current_user), db: AsyncSession = De
 
 @router.put("/rods")
 async def save_rods(body: RodTubeBulk, user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
-    await db.execute(delete(RodTube).where(RodTube.user_id == user.id))
-    for m in body.materials:
-        row = RodTube(
-            user_id=user.id,
-            material_id=m.id,
-            type=m.type,
-            name=m.name,
-            diameter=m.diameter,
-            wall_thickness=m.wallThickness,
-            length=m.length,
-            price=m.price,
-        )
-        db.add(row)
-    await db.commit()
+    async with db.begin():
+        await db.execute(delete(RodTube).where(RodTube.user_id == user.id))
+        for m in body.materials:
+            row = RodTube(
+                user_id=user.id,
+                material_id=m.id,
+                type=m.type,
+                name=m.name,
+                diameter=m.diameter,
+                wall_thickness=m.wallThickness,
+                length=m.length,
+                price=m.price,
+            )
+            db.add(row)
     return {"ok": True}

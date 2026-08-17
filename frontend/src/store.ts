@@ -225,8 +225,18 @@ export const useStore = create<AppState>((set, get) => ({
         set({ streaming: false, abortController: null });
         await get().loadSessions();
         const state = get();
-        if (!state.currentSessionId && state.sessions.length > 0) {
-          set({ currentSessionId: state.sessions[0].id });
+        let sessionId = state.currentSessionId;
+        if (!sessionId && state.sessions.length > 0) {
+          sessionId = state.sessions[0].id;
+          set({ currentSessionId: sessionId });
+        }
+        if (sessionId) {
+          try {
+            const data = await api.getSession(sessionId);
+            set({ messages: data.messages || [] });
+          } catch {
+            // 刷新失败时保留当前消息，避免清空用户可见内容
+          }
         }
         get().loadQuota();
       },
@@ -254,6 +264,7 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   async regenerateMessage(messageId: number) {
+    if (get().streaming) return;
     const { currentSessionId, messages } = get();
     if (!currentSessionId) return;
 
@@ -272,6 +283,7 @@ export const useStore = create<AppState>((set, get) => ({
   },
 
   async editAndResend(messageId: number, newContent: string) {
+    if (get().streaming) return;
     const { currentSessionId } = get();
     if (!currentSessionId) return;
 

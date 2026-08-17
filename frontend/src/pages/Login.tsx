@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
+import { useI18n } from '../i18n';
 
 export default function Login() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [isRegister, setIsRegister] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -43,8 +45,8 @@ export default function Login() {
           <div className="flex items-center justify-center gap-2 mb-2">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-apple-blue to-purple-500 flex items-center justify-center text-base font-bold text-white shadow-lg shadow-apple-blue/30 ai-glow">AI</div>
           </div>
-          <h1 className="text-xl font-bold text-white text-center mb-1">创世</h1>
-          <p className="text-apple-text-secondary text-sm text-center mb-8">企业级智能助手</p>
+          <h1 className="text-xl font-bold text-white text-center mb-1">{t('hint.login_title')}</h1>
+          <p className="text-apple-text-secondary text-sm text-center mb-8">{t('hint.login_subtitle')}</p>
 
           {error && (
             <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs px-4 py-2.5 rounded-apple mb-4">
@@ -54,30 +56,30 @@ export default function Login() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-xs text-apple-text-secondary mb-1.5">用户名</label>
+              <label className="block text-xs text-apple-text-secondary mb-1.5">{t('label.username')}</label>
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full bg-apple-secondary border border-apple-border rounded-apple px-4 py-2.5 text-white text-sm placeholder:text-apple-text-secondary focus:outline-none focus:border-apple-blue transition-colors"
-                placeholder="输入用户名"
+                placeholder={t('placeholder.username')}
                 required
               />
             </div>
             <div>
-              <label className="block text-xs text-apple-text-secondary mb-1.5">密码</label>
+              <label className="block text-xs text-apple-text-secondary mb-1.5">{t('label.password')}</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-apple-secondary border border-apple-border rounded-apple px-4 py-2.5 text-white text-sm placeholder:text-apple-text-secondary focus:outline-none focus:border-apple-blue transition-colors"
-                placeholder="输入密码"
+                placeholder={t('placeholder.password')}
                 required
               />
             </div>
             {isRegister && (
               <div>
-                <label className="block text-xs text-apple-text-secondary mb-1.5">邮箱（选填）</label>
+                <label className="block text-xs text-apple-text-secondary mb-1.5">{t('label.email_optional')}</label>
                 <input
                   type="email"
                   value={email}
@@ -95,7 +97,7 @@ export default function Login() {
                   onChange={(e) => setRemember(e.target.checked)}
                   className="w-3.5 h-3.5 rounded accent-apple-blue"
                 />
-                <span>记住我（30 天免登录）</span>
+                <span>{t('label.remember_detail')}</span>
               </label>
             )}
             <button
@@ -103,17 +105,17 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-apple-blue to-purple-500 hover:opacity-90 disabled:opacity-50 text-white font-medium py-2.5 rounded-apple transition-all text-sm shadow-lg shadow-apple-blue/20"
             >
-              {loading ? '处理中...' : isRegister ? '注册' : '登录'}
+              {loading ? t('hint.processing') : isRegister ? t('btn.register') : t('btn.login')}
             </button>
           </form>
 
           <p className="text-center mt-5 text-xs text-apple-text-secondary">
-            {isRegister ? '已有账号？' : '没有账号？'}
+            {isRegister ? t('hint.has_account') : t('hint.no_account')}
             <button
               onClick={() => { setIsRegister(!isRegister); setError(''); }}
               className="text-apple-blue ml-1 hover:underline"
             >
-              {isRegister ? '去登录' : '去注册'}
+              {isRegister ? t('hint.go_login') : t('hint.go_register')}
             </button>
           </p>
         </div>

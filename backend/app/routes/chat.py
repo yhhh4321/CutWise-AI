@@ -13,6 +13,7 @@ from app.schemas import (
 )
 from app.auth import get_current_user
 from app.config import get_settings
+from app.crypto import decrypt_api_key
 
 router = APIRouter(prefix="/api/chat", tags=["chat"])
 settings = get_settings()
@@ -67,7 +68,7 @@ async def list_templates(
     result = await db.execute(select(ChatTemplate).order_by(ChatTemplate.created_at.desc()))
     templates = result.scalars().all()
     return [{"id": t.id, "name": t.name, "model_name": t.model_name,
-             "system_prompt": t.system_prompt, "provider_id": t.provider_id,
+             "provider_id": t.provider_id,
              "created_at": t.created_at.isoformat() if t.created_at else None} for t in templates]
 
 
@@ -273,7 +274,7 @@ async def chat_completions(
             for p in provider_result.scalars().all():
                 if model_name in (p.models or []):
                     api_base = p.base_url
-                    api_key = p.api_key_encrypted
+                    api_key = decrypt_api_key(p.api_key_encrypted)
                     break
 
         try:
